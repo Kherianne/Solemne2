@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Memorice de Sam</title>
+  <style>
+    body {
+      background-color: #2c085e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #tablero {
+      display: grid;
+      grid-template-columns: repeat(5, 100px);
+      grid-gap: 80px;
+      perspective: 1000px;
+    }
+
+    .carta {
+      width: 150px;
+      height: 150px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.5s;
+      cursor: pointer;
+    }
+
+    .carta.girada {
+      transform: rotateY(180deg);
+    }
+
+    .cara {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border: 2px solid #333;
+      border-radius: 8px;
+    }
+
+    .frontal {
+      background-color: #e8ffd7;
+    }
+
+    .trasera img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .trasera {
+      transform: rotateY(180deg);
+    }
+
+    #titulo {
+      position: absolute;
+      top: 60px;
+      font-family: Georgia, serif;
+      font-size: 60px;
+      font-weight: bold;
+      color: rgb(250, 205, 246);
+      font-weight: bold;
+}
+#mensajeGanaste {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: auto;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: rgb(118, 213, 58);
+  font-family: Georgia, serif;
+  font-size: 60px;
+  text-align: center;
+  padding: 40px;
+  border-radius: 20px;
+  display: none;
+  z-index: 999;
+}    
+
+  </style>
+</head>
+<body>
+
+  <div id="tablero"></div>
+
+  <script>
+    const imagenes = [
+      "Fruta1.jpg", "Fruta2.jpg", "Fruta3.jpg", "Fruta4.jpg", "Fruta5.jpg",
+      "Fruta1.jpg", "Fruta2.jpg", "Fruta3.jpg", "Fruta4.jpg", "Fruta5.jpg"
+    ];
+
+    imagenes.sort(() => Math.random() - 0.5);
+
+    const tablero = document.getElementById("tablero");
+    let cartasSeleccionadas = [];
+    let cartasBloqueadas = [];
+
+    for (let i = 0; i < imagenes.length; i++) {
+      const carta = document.createElement("div");
+      carta.className = "carta";
+      carta.dataset.imagen = imagenes[i];
+
+      const frontal = document.createElement("div");
+      frontal.className = "cara frontal";
+
+      const trasera = document.createElement("div");
+      trasera.className = "cara trasera";
+      const img = document.createElement("img");
+      img.src = imagenes[i];
+      trasera.appendChild(img);
+
+      carta.appendChild(frontal);
+      carta.appendChild(trasera);
+
+      carta.addEventListener("click", () => {
+        if (cartasSeleccionadas.length < 2 && !carta.classList.contains("girada") && !cartasBloqueadas.includes(carta)) {
+          carta.classList.add("girada");
+          cartasSeleccionadas.push(carta);
+
+          if (cartasSeleccionadas.length === 2) {
+            verificarPareja();
+          }
+        }
+      });
+
+      tablero.appendChild(carta);
+    }
+
+    function verificarPareja() {
+      const [carta1, carta2] = cartasSeleccionadas;
+
+      if (carta1.dataset.imagen === carta2.dataset.imagen) {
+        cartasBloqueadas.push(carta1, carta2);
+        cartasSeleccionadas = [];
+      } else {
+        setTimeout(() => {
+          carta1.classList.remove("girada");
+          carta2.classList.remove("girada");
+          cartasSeleccionadas = [];
+        }, 1000);
+      }
+      verificarVictoria();
+    }
+    function verificarVictoria() {
+  if (cartasBloqueadas.length === imagenes.length) {
+    document.getElementById("mensajeGanaste").style.display = "block";
+  }
+}
+  </script>
+<div id="titulo">
+  Memorice de Sam 
+</div>
+
+<div id="mensajeGanaste">
+  ¡Ganaste!
+</div>
+
+</body>
+</html>
